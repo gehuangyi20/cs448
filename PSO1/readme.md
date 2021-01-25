@@ -1,6 +1,6 @@
 # CS448 PSO1 SQLITE3 demonstration
 
-SQLite is a C-language library that implements a small, fast, self-contained, high-reliability, full-featured, SQL database engine. In this PSO1, we will demonstrate how to install and manage a sqlite database. In addition, we will cover the basic usage of SQL language which is a standard language for managing relational databases such as MYSQL, PostgresSQL, ORACLE, SQLite, and etc.
+SQLite is a C-language library that implements a small, fast, self-contained, SQL database engine, which is sufficient building a personal database for daily usage. In this PSO1, we will demonstrate how to install and manage a sqlite database. In addition, we will cover the basic usage of SQL language which is a standard language for managing relational databases such as MYSQL, PostgresSQL, ORACLE, SQLite, and etc.
 
 The document is created based on [tutorialspoint](https://www.tutorialspoint.com/sqlite/index.htm)
 ## 1. SQLite Installation
@@ -45,6 +45,9 @@ sqlite> .open [dbname]
 sqlite> .quit
 ```
 
+- Notice
+
+In SQLite command interface, we use dot(`.`) prefixed command such as `.table`, `.open`, `.quit`, and etc to manage the database. These commands are only available in SQLite, and are not part of the SQL standard. In other database like MYSQL, you can find similar commands.
 ## 3. Tables Management
 
 - Syntax
@@ -147,6 +150,8 @@ To manage the data records in a database, we can perform four types of operation
     - Insert, Update, Delete
 
 ### Import data
+
+The database schema we used here comes from the textbook website. You could find them on https://www.db-book.com/db7/university-lab-dir/sample_tables-dir/index.html
 ```
 sqlite> .read DDL.sql
 sqlite> .read smallRelationsInsertFile.sql
@@ -364,7 +369,7 @@ Watson      100          1000
 Watson      120          50     
 ```
 
-If you want to DELETE all the records from COMPANY table, you do not need to use WHERE clause with DELETE query, which will be as follows
+If you want to DELETE all the records from `classroom` table, you do not need to use WHERE clause with DELETE query, which will be as follows
 
 ```
 sqlite> DELETE FROM classroom;
@@ -373,3 +378,153 @@ sqlite> DELETE FROM classroom;
 ## 6. Advanced SELECT
 
 In SQLite, we can perform more complicated SELECT operations such as JOIN, LIKE, LIMIT, ORDER BY, GROUP BY, HAVING, AGGREGATION, DISTINCT
+
+### JOIN
+
+SQLite Joins clause is used to combine records from two or more tables in a database. A JOIN is a means for combining fields from two tables by using values common to each.
+
+SQL defines three major types of joins
+- The CROSS JOIN
+- The INNER JOIN
+- The OUTER JOIN
+
+Before we proceed, let's consider two tables `classroom` and `department`.
+
+
+The first table is `classroom` table with the following records.
+
+```
+building    room_number  capacity  
+----------  -----------  ----------
+Packard     101          500       
+Painter     514          10        
+Taylor      3128         70        
+Watson      100          30        
+Watson      120          50        
+Lawson      10           500     
+```
+
+The second table is `department` table with the following records.
+
+```
+dept_name   building    budget    
+----------  ----------  ----------
+Biology     Watson      90000     
+Comp. Sci.  Taylor      100000    
+Elec. Eng.  Taylor      85000     
+Finance     Painter     120000    
+History     Painter     50000     
+Music       Packard     80000     
+Physics     Watson      70000     
+```
+
+#### - The CROSS JOIN
+
+CROSS JOIN matches every row of the first table with every row of the second table. If the input tables have x and y row, respectively, the resulting table will have x*y row. Because CROSS JOINs have the potential to generate extremely large tables, care must be taken to only use them when appropriate.
+
+Following is the syntax of CROSS JOIN
+
+```
+SELECT ... FROM table1 CROSS JOIN table2 ...
+```
+
+Here is the CROSS JOIN result of `classroom` and `department`:
+```
+sqlite> SELECT * FROM classroom CROSS JOIN department;
+building    room_number  capacity    dept_name   building    budget    
+----------  -----------  ----------  ----------  ----------  ----------
+Packard     101          500         Biology     Watson      90000     
+Packard     101          500         Comp. Sci.  Taylor      100000    
+Packard     101          500         Elec. Eng.  Taylor      85000     
+Packard     101          500         Finance     Painter     120000    
+Packard     101          500         History     Painter     50000     
+Packard     101          500         Music       Packard     80000     
+Packard     101          500         Physics     Watson      70000     
+Painter     514          10          Biology     Watson      90000     
+Painter     514          10          Comp. Sci.  Taylor      100000    
+Painter     514          10          Elec. Eng.  Taylor      85000     
+Painter     514          10          Finance     Painter     120000    
+Painter     514          10          History     Painter     50000     
+Painter     514          10          Music       Packard     80000     
+Painter     514          10          Physics     Watson      70000     
+Taylor      3128         70          Biology     Watson      90000     
+Taylor      3128         70          Comp. Sci.  Taylor      100000    
+Taylor      3128         70          Elec. Eng.  Taylor      85000     
+Taylor      3128         70          Finance     Painter     120000    
+Taylor      3128         70          History     Painter     50000     
+Taylor      3128         70          Music       Packard     80000     
+Taylor      3128         70          Physics     Watson      70000     
+Watson      100          1000        Biology     Watson      90000     
+Watson      100          1000        Comp. Sci.  Taylor      100000    
+Watson      100          1000        Elec. Eng.  Taylor      85000     
+Watson      100          1000        Finance     Painter     120000    
+Watson      100          1000        History     Painter     50000     
+Watson      100          1000        Music       Packard     80000     
+Watson      100          1000        Physics     Watson      70000     
+Watson      120          50          Biology     Watson      90000     
+Watson      120          50          Comp. Sci.  Taylor      100000    
+Watson      120          50          Elec. Eng.  Taylor      85000     
+Watson      120          50          Finance     Painter     120000    
+Watson      120          50          History     Painter     50000     
+Watson      120          50          Music       Packard     80000     
+Watson      120          50          Physics     Watson      70000     
+```
+
+#### - The INNER JOIN
+INNER JOIN creates a new result table by combining column values of two tables (table1 and table2) based upon the join-predicate. The query compares each row of table1 with each row of table2 to find all pairs of rows which satisfy the join-predicate. When the join-predicate is satisfied, the column values for each matched pair of rows of A and B are combined into a result row.
+
+An `INNER JOIN` is **the most common and default type of join**. You can use `INNER` keyword optionally.
+
+Following is the syntax of INNER JOIN
+```
+SELECT ... FROM table1 [INNER] JOIN table2 ON conditional_expression ...
+```
+
+To avoid redundancy and keep the phrasing shorter, `INNER JOIN` conditions can be declared with a `USING` expression. This expression specifies a list of one or more columns.
+
+```
+SELECT ... FROM table1 JOIN table2 USING ( column1 ,... ) ...
+```
+
+A `NATURAL JOIN` is similar to a `JOIN...USING`, only it automatically tests for equality between the values of every column that exists in both tables.
+```
+SELECT ... FROM table1 NATURAL JOIN table2...
+```
+
+Based on the above tables, you can write an INNER `JOIN` as follows
+
+```
+SELECT * FROM classroom INNER JOIN department on classroom.building = department.building;
+building    room_number  capacity    dept_name   building    budget    
+----------  -----------  ----------  ----------  ----------  ----------
+Watson      100          1000        Biology     Watson      90000     
+Watson      120          50          Biology     Watson      90000     
+Taylor      3128         70          Comp. Sci.  Taylor      100000    
+Taylor      3128         70          Elec. Eng.  Taylor      85000     
+Painter     514          10          Finance     Painter     120000    
+Painter     514          10          History     Painter     50000     
+Packard     101          500         Music       Packard     80000     
+Watson      100          1000        Physics     Watson      70000     
+Watson      120          50          Physics     Watson      70000     
+```
+
+We use `table_name.column_name` to avoid the ambiguity if two tables have the same name on one column
+.
+The above query is equivalent to following queries
+```
+# JOIN instead of INNER JOIN
+SELECT * FROM classroom JOIN department on classroom.building = department.building;
+# USING clause
+SELECT * FROM classroom JOIN department USING (building);
+# NATURAL JOIN
+SELECT * FROM classroom INNER NATURAL JOIN department;
+# WHERE clause
+SELECT * FROM classroom, department WHERE classroom.building = department.building;
+# USE short cut table name
+SELECT c.building, c.room_number, c.capacity, d.dept_name, d.building, d.budget
+FROM classroom AS c, department AS d WHERE c.building = d.building;
+```
+
+#### - The OUTER JOIN
+
+OUTER JOIN is an extension of INNER JOIN. Though SQL standard defines three types of OUTER JOINs: LEFT, RIGHT, and FULL, SQLite only supports the LEFT OUTER JOIN.
