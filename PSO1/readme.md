@@ -528,3 +528,121 @@ FROM classroom AS c, department AS d WHERE c.building = d.building;
 #### - The OUTER JOIN
 
 OUTER JOIN is an extension of INNER JOIN. Though SQL standard defines three types of OUTER JOINs: LEFT, RIGHT, and FULL, SQLite only supports the LEFT OUTER JOIN.
+
+OUTER JOINs have a condition that is identical to INNER JOINs, expressed using an ON, USING, or NATURAL keyword. The initial results table is calculated the same way. Once the primary JOIN is calculated, an OUTER JOIN will take any unjoined rows from one or both tables, pad them out with NULLs, and append them to the resulting table.
+
+Following is the syntax of LEFT OUTER JOIN −
+
+```
+SELECT ... FROM table1 LEFT OUTER JOIN table2 ON conditional_expression ...
+```
+
+To avoid redundancy and keep the phrasing shorter, `OUTER JOIN` conditions can be declared with a USING expression. This expression specifies a list of one or more columns.
+
+```
+SELECT ... FROM table1 LEFT OUTER JOIN table2 USING ( column1 ,... ) ...
+```
+
+Based on the above tables, you can write an inner join as follows −
+```
+sqlite> INSERT INTO classroom VALUES ('Lawson', '10', '500');
+sqlite> SELECT * FROM classroom LEFT JOIN department USING (building);
+
+building    room_number  capacity    dept_name   budget    
+----------  -----------  ----------  ----------  ----------
+Packard     101          500         Music       80000     
+Painter     514          10          Finance     120000    
+Painter     514          10          History     50000     
+Taylor      3128         70          Comp. Sci.  100000    
+Taylor      3128         70          Elec. Eng.  85000     
+Watson      100          1000        Biology     90000     
+Watson      100          1000        Physics     70000     
+Watson      120          50          Biology     90000     
+Watson      120          50          Physics     70000     
+Lawson      10           500                             
+
+sqlite> DELETE FROM classroom WHERE building = 'Lawson';
+```
+
+### ORDER BY
+
+SQLite `ORDER BY` clause is used to sort the data in an ascending or descending order, based on one or more columns.
+
+- Syntax
+```
+SELECT column-list
+FROM table_name
+[WHERE condition]
+[ORDER BY column1, column2, .. columnN] [ASC | DESC];
+```
+
+You can use more than one column in the `ORDER BY` clause. Make sure whatever column you are using to sort, that column should be available in the column-list.
+
+- Example
+
+Consider `classroom` table with the following records.
+
+```
+building    room_number  capacity  
+----------  -----------  ----------
+Packard     101          500       
+Painter     514          10        
+Taylor      3128         70        
+Watson      100          30        
+Watson      120          50        
+```
+
+We will find all records in table `classroom` and sort the result by column building in ascending order and room_number in descending order.
+```
+sqlite> SELECT * FROM classroom ORDER BY building ASC, room_number DESC;
+building    room_number  capacity  
+----------  -----------  ----------
+Packard     101          500       
+Painter     514          10        
+Taylor      3128         70        
+Watson      120          50        
+Watson      100          1000  
+```
+
+### GROUP BY
+
+SQLite `GROUP BY` clause is used in collaboration with the `SELECT` statement to arrange identical data into groups.
+
+`GROUP BY` clause follows the `WHERE` clause in a `SELECT` statement and precedes the `ORDER BY` clause.
+
+- Syntax
+Following is the basic syntax of `GROUP BY` clause. `GROUP BY` clause must follow the conditions in the `WHERE` clause and must precede `ORDER BY` clause if one is used.
+
+```
+SELECT column-list
+FROM table_name
+WHERE [ conditions ]
+GROUP BY column1, column2....columnN
+ORDER BY column1, column2....columnN
+````
+You can use more than one column in the `GROUP BY` clause. Make sure whatever column you are using to group, that column should be available in the column-list.
+
+- Example
+-
+Consider `classroom` table with the following records.
+
+```
+building    room_number  capacity  
+----------  -----------  ----------
+Packard     101          500       
+Painter     514          10        
+Taylor      3128         70        
+Watson      100          30        
+Watson      120          50        
+```
+
+We want to know the total capacity of each building.
+
+```
+sqlite> SELECT building, SUM(capacity) FROM classroom GROUP BY building;
+----------  -------------
+Packard     500          
+Painter     10           
+Taylor      70           
+Watson      1050      
+```
