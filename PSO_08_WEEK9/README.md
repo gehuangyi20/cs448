@@ -6,8 +6,8 @@ We will use MySQL to show the query evaluation plan.
 
 You can create a MySQL account following this link: https://www.itap.purdue.edu/infrastructure/database/mysql/careeraccount.html . This requires to set a password and please do not use your Purdue career account password for MySQL account.
 
-**You'd better to use MYSQL version 8.0.20 since features like `EXPLAIN ANALYZE` are not available in lower versions.
-**
+**You'd better to use MYSQL version 8.0.20 since features like `EXPLAIN ANALYZE` are not available in lower versions.**
+
 ## `EXPLAIN` statement
 Example tables:
 ```sql
